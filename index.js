@@ -30,7 +30,6 @@ class V2 {
   const context = canvas.getContext("2d");
   let start;
   let pos = new V2(radius + 10, radius + 10);
-  let vel = new V2(0, 0);
 
   let directionMap = {
     KeyS: new V2(0, speed),
@@ -38,7 +37,7 @@ class V2 {
     KeyA: new V2(-speed, 0),
     KeyD: new V2(speed, 0),
   };
-
+  let pressedKeys = new Set();
   function step(timestamp) {
     if (start === undefined) {
       start = timestamp;
@@ -52,6 +51,14 @@ class V2 {
     const height = window.innerHeight;
     canvas.width = width;
     canvas.height = height;
+    let vel = new V2(0, 0);
+
+    for (let key of pressedKeys) {
+      if (key in directionMap) {
+        vel = vel.add(directionMap[key]);
+      }
+    }
+
     pos = pos.add(vel.scale(dt));
 
     // context.fillStyle = "black";
@@ -62,12 +69,10 @@ class V2 {
 
   window.requestAnimationFrame(step);
   document.addEventListener("keydown", (event) => {
-    if (event.code in directionMap) {
-      vel = vel.add(directionMap[event.code]);
-    }
+    pressedKeys.add(event.code);
   });
 
   document.addEventListener("keyup", (event) => {
-    vel = vel.sub(directionMap[event.code]);
+    pressedKeys.delete(event.code);
   });
 })();
